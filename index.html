@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>LL Dance Studio App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: a phone frame on wide screens, full-bleed on phones. Black stage, gold spotlight, grey satin. */
+:root{
+  --bg:#0a0a0b; --bg2:#121214; --card:#18181b; --card2:#1f1f23; --line:#2a2a2f;
+  --fg:#f2efe8; --fg2:#a7a39b; --fg3:#6f6c66;
+  --gold:#c9a24a; --gold2:#e6c87a; --gold3:#8c6c25;
+  --ok:#7fb686; --warn:#d9a441; --bad:#c86b6b;
+  --display:"Cormorant Garamond",Georgia,serif; --body:"Outfit",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:#050506;color:var(--fg);font-family:var(--body);font-weight:300;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.45}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0;text-wrap:balance;letter-spacing:.005em}
+input,textarea,select{font:inherit;color:var(--fg);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+textarea{min-height:84px;resize:vertical}
+::placeholder{color:var(--fg3)}
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:24px;background:radial-gradient(1200px 600px at 50% -10%,#1c1710 0%,#050506 60%)}
+.phone{width:min(430px,100%);height:min(900px,100%);background:var(--bg);border-radius:40px;position:relative;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 0 1px #26242a,0 0 0 9px #0c0c0d,0 0 0 10px #2a2a2f;display:flex;flex-direction:column}
+@media (max-width:520px){.stage{padding:0;align-items:stretch;height:100%;min-height:0}.phone{width:100%;height:100%;border-radius:0;box-shadow:none}}
+.screen{flex:1;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.content{padding:18px 20px 110px;display:flex;flex-direction:column;gap:18px}
+/* top bar */
+.top{display:flex;align-items:center;gap:12px;padding:16px 20px 6px;position:sticky;top:0;background:linear-gradient(var(--bg) 70%,transparent);z-index:5}
+.top h1{font-size:28px;flex:1;line-height:1.1}
+.top .back{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--fg2)}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.muted{color:var(--fg2)}.small{font-size:12.5px}.tiny{font-size:11.5px;color:var(--fg3)}
+.gold{color:var(--gold2)}
+/* nav */
+.nav{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(10,10,11,.85) 30%,var(--bg) 60%);padding:16px 10px calc(14px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-around;z-index:6}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);width:64px}
+.nav button.on{color:var(--gold2)}
+.nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.card.tap{cursor:pointer;transition:border-color .15s}.card.tap:hover{border-color:var(--gold3)}
+.row{display:flex;align-items:center;gap:12px}.row.between{justify-content:space-between}.grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec>h2{font-size:22px}.sec>.row>h2{font-size:22px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:11.5px;letter-spacing:.03em;border:1px solid var(--line);color:var(--fg2);white-space:nowrap}
+.chip.gold{border-color:var(--gold3);color:var(--gold2);background:rgba(201,162,74,.08)}
+.chip.ok{border-color:#3b5a40;color:var(--ok)}.chip.warn{border-color:#5a4a26;color:var(--warn)}.chip.bad{border-color:#5a3434;color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:500;font-size:14px;letter-spacing:.02em;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#161206}
+.btn.ghost{border:1px solid var(--line);color:var(--fg)}
+.btn.block{width:100%}.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-size:17px;color:var(--gold2);flex:none}
+.avatar.lg{width:72px;height:72px;font-size:30px}
+.hero{position:relative;border-radius:18px;overflow:hidden;min-height:150px;display:flex;align-items:flex-end;padding:16px;border:1px solid var(--line)}
+.hero canvas,.art canvas,.hero .pic,.art .pic{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .pic::after{content:""}
+.hero{isolation:isolate}.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,.05),rgba(10,10,11,.85));z-index:1}.hero>*{z-index:2}
+.login .bgc{object-fit:cover;opacity:.55;mask-image:linear-gradient(180deg,#000 40%,transparent 95%);-webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 95%)}
+.hero>*{position:relative}
+.hero h2{font-size:30px;line-height:1}
+.art{position:relative;border-radius:12px;overflow:hidden;background:var(--card2);aspect-ratio:1;max-width:100%}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv .card{gap:2px}.kv .n{font-family:var(--display);font-size:30px;line-height:1;color:var(--gold2)}
+.list{display:flex;flex-direction:column}
+.list>.item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.list>.item:last-child{border-bottom:0}
+.time{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--fg2);width:78px;flex:none}
+.hr{height:1px;background:var(--line)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;padding:8px;border-radius:9px;font-size:13px;color:var(--fg2)}
+.seg button.on{background:var(--card2);color:var(--gold2)}
+/* calendar */
+.days{display:flex;gap:6px}
+.days button{flex:1;padding:8px 0;border-radius:10px;border:1px solid var(--line);font-size:12px;color:var(--fg2);display:flex;flex-direction:column;gap:2px;align-items:center}
+.days button b{font-weight:500;color:var(--fg);font-size:15px}
+.days button.on{border-color:var(--gold3);background:rgba(201,162,74,.08);color:var(--gold2)}
+.cal{display:grid;grid-template-columns:44px 1fr 1fr;gap:4px;font-size:11.5px}
+.cal .h{text-align:center;padding:6px 0;color:var(--fg2);letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+.cal .t{color:var(--fg3);font-variant-numeric:tabular-nums;padding-top:2px;text-align:right;padding-right:6px}
+.cal .slot{min-height:30px;border-radius:7px;border:1px dashed var(--line);display:flex;align-items:center;padding:4px 7px;overflow:hidden}
+.cal .slot.free{cursor:pointer;color:var(--fg3)}.cal .slot.free:hover{border-color:var(--gold3);color:var(--gold2)}
+.cal .slot.busy{background:var(--card2);border:1px solid var(--line);color:var(--fg);cursor:pointer}
+.cal .slot.busy.mine{border-color:var(--gold3);background:rgba(201,162,74,.12)}
+.cal .slot.booking{background:rgba(127,182,134,.12);border:1px solid #3b5a40}
+.cal .slot span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* feed */
+.post{display:flex;flex-direction:column;gap:10px;padding:14px 0;border-bottom:1px solid var(--line)}
+.post .meta{display:flex;align-items:center;gap:10px}
+.post .acts{display:flex;gap:16px;font-size:12.5px;color:var(--fg2)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* video */
+.video{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/9;background:#000;border:1px solid var(--line);max-width:100%}
+.video .play{position:absolute;inset:0;display:grid;place-items:center}
+.video .play button{width:58px;height:58px;border-radius:50%;background:rgba(201,162,74,.9);color:#161206;display:grid;place-items:center}
+.video .bar{position:absolute;left:12px;right:12px;bottom:10px;height:3px;background:rgba(255,255,255,.2);border-radius:2px}
+.video .bar i{display:block;width:38%;height:100%;background:var(--gold2);border-radius:2px}
+.counts{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.counts button{padding:8px 0;border-radius:8px;border:1px solid var(--line);font-variant-numeric:tabular-nums;font-size:13px;color:var(--fg2)}
+.counts button.on{border-color:var(--gold3);background:rgba(201,162,74,.12);color:var(--gold2)}
+/* formation */
+.floor{position:relative;aspect-ratio:4/3;border:1px solid var(--line);border-radius:12px;background:repeating-linear-gradient(90deg,transparent 0 24.5%,var(--line) 24.5% 25%),repeating-linear-gradient(0deg,transparent 0 33%,var(--line) 33% 33.4%);max-width:100%}
+.floor .d{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--card2);border:1px solid var(--gold3);display:grid;place-items:center;font-size:10px;color:var(--gold2);transform:translate(-50%,-50%);transition:left .4s,top .4s}
+.floor .d.me{background:var(--gold);color:#161206;font-weight:600}
+/* toast / sheet */
+.toast{position:absolute;left:16px;right:16px;bottom:96px;background:var(--card2);border:1px solid var(--gold3);border-radius:12px;padding:12px 14px;font-size:13.5px;z-index:9;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:8;display:flex;align-items:flex-end}
+.sheet{background:var(--bg2);border-radius:22px 22px 0 0;padding:18px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-height:85%;overflow:auto;display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line)}
+.sheet .handle{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto}
+.sheet h2{font-size:24px}
+.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:var(--fg2);letter-spacing:.04em}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw{width:42px;height:24px;border-radius:12px;background:var(--line);position:relative;flex:none}
+.sw i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--fg2);transition:left .15s}
+.sw.on{background:var(--gold3)}.sw.on i{left:21px;background:var(--gold2)}
+.check{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;flex:none;color:#161206}
+.check.on{background:var(--gold);border-color:var(--gold)}
+/* login */
+.login{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 40px;position:relative;gap:18px}
+.brand{display:block;margin:0 auto 4px;max-width:100%;filter:drop-shadow(0 8px 24px rgba(201,162,74,.25))}
+.login .bgc{position:absolute;inset:0;width:100%;height:100%}
+.login>*{position:relative}
+.logo{display:flex;align-items:baseline;gap:4px;font-family:var(--display)}
+.logo b{font-size:64px;font-weight:500;line-height:.9;letter-spacing:-.02em;background:linear-gradient(180deg,var(--gold2),var(--gold3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo span{font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--fg2);font-family:var(--body)}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.roles button{padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(24,24,27,.7);text-align:left;display:flex;flex-direction:column;gap:3px;backdrop-filter:blur(6px)}
+.roles button:hover{border-color:var(--gold3)}
+.roles b{font-weight:500;font-size:15px}
+.roles small{color:var(--fg2);font-size:12px}
+.tabs{display:flex;gap:16px;border-bottom:1px solid var(--line)}
+.tabs button{padding:8px 2px;font-size:13.5px;color:var(--fg2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--gold2);border-color:var(--gold)}
+.prog{height:4px;background:var(--line);border-radius:2px;overflow:hidden}.prog i{display:block;height:100%;background:var(--gold)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none}
+.note{border-left:2px solid var(--gold3);padding-left:12px}
+.week{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.week .col{display:flex;flex-direction:column;gap:4px}
+.week .col h4{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg2);font-weight:500;text-align:center}
+.week .blk{border-radius:6px;padding:4px 5px;font-size:10px;line-height:1.2;border:1px solid var(--line);background:var(--card);overflow:hidden;cursor:grab}
+.week .blk.s{border-left:2px solid var(--gold)}.week .blk.l{border-left:2px solid #6f8fa7}
+.week .blk b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demo-badge{position:absolute;bottom:94px;right:14px;z-index:7;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);border:1px solid var(--line);padding:3px 8px;border-radius:999px;background:rgba(10,10,11,.7)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.fade{animation:fade .25s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+
+</head><body>
+<div class="stage"><div class="phone" id="phone"></div></div>
+
+<script>
+/* ---------- demo data (real team names from lldancestudio.dk, people are fictional) ---------- */
+const ROOMS={S:"Store Sal",L:"Lille Sal"};
+const DAYS=["Man","Tir","Ons","Tor","Fre","Lør","Søn"];
+let SCHEDULE=[
+ // day 0..6, room, start, end, name, group, level, teacher
+ [0,"S","15.30","16.30","Teknik – New Age","Børn","Elite","Line"],
+ [0,"S","16.30","17.15","Spring & Tumbling","Børn","Alle","Maja"],
+ [0,"S","17.20","18.20","Teknik – Børn Showdance","Børn","Øvet+","Line"],
+ [0,"S","18.25","19.10","Hip Hop","Junior & Voksen","Begynder","Maja"],
+ [0,"S","19.10","20.10","Control","Junior","Øvet+","Line"],
+ [0,"L","16.00","16.45","Mini Cuties","Mini","Begynder","Sofie"],
+ [0,"L","16.50","17.35","Hip Hop Mini","Mini","Alle","Maja"],
+ [0,"L","17.40","18.25","Shining Stars","Børn","Begynder","Sofie"],
+ [0,"L","18.30","19.15","Contemporary","Junior & Voksen","Begynder","Sofie"],
+ [0,"L","19.20","20.05","Contemporary","Junior & Voksen","Elite","Line"],
+ [0,"L","20.10","20.55","Hip Hop","Junior & Voksen","Elite","Maja"],
+ [1,"S","15.40","16.40","Mini Angels","Mini","Øvet+","Line"],
+ [1,"S","16.45","18.30","The AXIS","Junior","Elite+","Line"],
+ [1,"S","18.30","19.15","Styrketræning","Junior & Voksen","Elite","Maja"],
+ [1,"S","19.15","20.45","Apexion","Junior","Elite+","Line"],
+ [1,"L","15.45","16.30","Disco Dance","Mini & Børn","Begynder","Sofie"],
+ [1,"L","16.35","17.35","Satellite Stars","Børn","Øvet","Sofie"],
+ [1,"L","17.40","18.25","Hip Hop","Børn","Alle","Maja"],
+ [1,"L","18.35","19.20","Division","Junior","Begynder","Sofie"],
+ [1,"L","19.25","20.10","Hit Fit Dance","14+","Alle","Maja"],
+ [2,"S","15.30","16.45","New Age","Børn","Elite","Line"],
+ [2,"S","16.45","17.15","Mini Stjernetrin","0–2 år","Alle","Sofie"],
+ [2,"S","17.15","18.15","Disco","Børn, Junior & Voksen","Elite","Line"],
+ [2,"S","18.15","19.15","Disco Slow","Børn, Junior & Voksen","Elite","Line"],
+ [2,"S","19.55","21.15","Airy","Junior","Elite","Line"],
+ [2,"L","15.45","16.45","Sky Stars","Børn","Øvet+","Sofie"],
+ [2,"L","16.50","17.35","Styrketræning","Børn","Elite","Maja"],
+ [2,"L","17.40","18.40","Empire","Junior","Øvet","Sofie"],
+ [2,"L","20.20","21.05","Hit Fit Dance","14+","Alle","Maja"],
+ [3,"S","15.45","16.30","Mini Magic","Mini","Øvet","Sofie"],
+ [3,"S","16.35","17.20","Spring & Tumbling Mini","Mini","Alle","Maja"],
+ [3,"S","17.25","18.10","Smidighed & Acro","Børn & Junior","Alle","Maja"],
+ [3,"S","18.15","19.00","Spring & Tumbling","Junior & Voksen","Elite","Maja"],
+ [3,"S","19.05","20.10","Teknik – Empire & Control","Junior","Øvet+","Line"],
+ [3,"S","19.55","21.10","Teknik – Apexion & Airy","Junior","Elite+","Line"],
+ [3,"L","16.35","17.20","Danse Stjerner","3 år – før skole","Alle","Sofie"],
+ [3,"L","17.25","18.10","Ballet Mini","Mini","Alle","Sofie"],
+ [3,"L","19.05","19.50","Ballet","Børn, Junior & Voksen","Alle","Sofie"],
+].map((r,i)=>({id:i,day:r[0],room:r[1],start:r[2],end:r[3],name:r[4],group:r[5],level:r[6],teacher:r[7],kind:"training"}));
+let BOOKINGS=[
+ {id:"b1",day:4,room:"S",start:"16.00",end:"18.00",name:"Solo – Freja (AXIS-solo)",by:"Freja",kind:"booking"},
+ {id:"b2",day:4,room:"L",start:"17.00",end:"18.00",name:"Duo – Alma & Ida",by:"Alma",kind:"booking"},
+ {id:"b3",day:5,room:"S",start:"10.00","end":"13.00",name:"Ekstra: Apexion før DM",by:"Line",kind:"booking"},
+];
+const TEAMS=["The AXIS","Apexion","Airy","New Age","Mini Angels","Empire","Control","Division","Satellite Stars","Sky Stars","Shining Stars","Mini Magic","Mini Cuties","No Addiction"];
+const USERS={
+ trainer:{name:"Maja Kristensen",initials:"MK",role:"Træner",teams:["Hip Hop","Styrketræning","Spring & Tumbling"],sub:"Underviser 9 timer / uge"},
+ dancer:{name:"Freja Therkildsen",initials:"FT",role:"Danser",teams:["The AXIS","Teknik – Apexion & Airy","Contemporary"],sub:"The AXIS · Elite+ · Junior",level:"Elite+",age:13,shoe:"38",size:"S",since:"Aug 2024"},
+ parent:{name:"Steffen Therkildsen",initials:"ST",role:"Forælder",teams:["The AXIS"],sub:"Forælder til Freja (The AXIS)"},
+ admin:{name:"Line Lund Olesen",initials:"LL",role:"Admin",teams:TEAMS,sub:"Ejer & cheftræner"},
+};
+const COMPS=[
+ {id:"c1",date:"8. nov",title:"DM i Showdance – kvalifikation",place:"Arena Randers",teams:["The AXIS","Apexion","Airy"],meet:"07.45",start:"10.20",no:"#14",deadline:"25. okt",status:"Tilmeldt",
+  plan:[["07.45","Mødetid ved hovedindgangen"],["08.15","Hår & makeup – Hal B"],["09.00","Opvarmning (Line)"],["09.50","Gennemløb bag scenen"],["10.20","The AXIS danser – startnr. 14"],["12.10","Apexion danser – startnr. 31"],["15.30","Resultater & præmieoverrækkelse"]],
+  pack:["Kostume (sort/guld) + reserve-tights","Hårspray, nåle, hårnet","Makeup-sæt (bronze palette)","Dansesko + indesko","Vand & snacks (ingen nødder)","Teamjakke – Stjerneshoppen","Fotokonsent underskrevet"]},
+ {id:"c2",date:"29. nov",title:"Workshop: Hip Hop O.12",place:"LL Dance Studio – Store Sal",teams:["Alle O.12"],meet:"12.45",start:"13.00",deadline:"20. nov",status:"Åben tilmelding",plan:[["13.00","Grundteknik"],["14.00","Koreografi"],["15.00","Freestyle & cypher"]],pack:["Sneakers til indendørs","Løst tøj","Vand"]},
+ {id:"c3",date:"19. dec",title:"Julebal 2026",place:"Ulstrup Hallerne",teams:["Alle hold"],meet:"09.30",start:"11.00",deadline:"12. dec",status:"Billetter åbne",plan:[["09.30","Dørene åbner"],["10.45","Dansere klar bag det store tæppe"],["11.00","Indmarch"],["11.15","Hold-danse"],["13.00","Fællesdans – Tinka"],["13.30","Tak for i dag"]],pack:["Holdets julekostume","Nissehue (fællesdans)","Billet-kvittering på telefonen"]},
+ {id:"c4",date:"14. mar",title:"Nordic Dance Championship",place:"Boxen, Herning",teams:["Apexion","Airy"],meet:"08.00",start:"11.40",deadline:"1. feb",status:"Planlagt",plan:[["08.00","Mødetid"],["11.40","Apexion"],["13.20","Airy"]],pack:[]},
+];
+const RESULTS=[["Maj 2026","DM Showdance – finale","Apexion","🥇 1. plads"],["Maj 2026","DM Showdance – finale","The AXIS","🥈 2. plads"],["Mar 2026","Nordic Championship","Airy","🥉 3. plads"],["Nov 2025","DM kvalifikation","New Age","Kvalificeret"]];
+let POSTS=[
+ {id:1,who:"Line Lund Olesen",ini:"LL",team:"Alle",time:"I dag 08.12",text:"Husk tilmelding til DM-kvalifikationen inden 25. oktober. Startliste kommer i appen samme dag som vi får den fra DAF.",likes:24,comments:6,official:true},
+ {id:2,who:"Maja Kristensen",ini:"MK",team:"The AXIS",time:"I går 20.41",text:"Formationerne til 2. vers er ændret – se den nye video under Koreografi. Vi øver det på tirsdag, så kig det igennem hjemme 🙏",likes:11,comments:3,img:true},
+ {id:3,who:"Alma (The AXIS)",ini:"AL",team:"The AXIS",time:"I går 17.05",text:"Er der nogen der kører fra Viborg til Randers d. 8. nov? Vi er to der mangler kørelejlighed.",likes:4,comments:5},
+ {id:4,who:"Stjerneshoppen",ini:"★",team:"Alle",time:"Søndag",text:"Teamjakkerne er landet! Hent dem ved næste træning. Str. XS er udsolgt – flere på vej.",likes:31,comments:2,img:true},
+];
+const THREADS=[["Kørsel til DM – Randers","12 svar · Alma"],["Hår til DM: kan vi blive enige om flet?","8 svar · Maja"],["Fællesspisning efter juleballet?","19 svar · Steffen"],["Gammelt kostume til salg (str. S)","3 svar · Ida"]];
+const FOLDERS=[{t:"DM-finale maj 2026",n:48,team:"The AXIS"},{t:"Træning · formationer",n:12,team:"The AXIS"},{t:"Kostume-fitting",n:9,team:"The AXIS"},{t:"Julebal 2025",n:76,team:"The AXIS"},{t:"Backstage – Nordic",n:31,team:"The AXIS"}];
+const VIDEOS=[{t:"Hele nummeret – fuld tempo","d":"3:12",new:true},{t:"2. vers – nye formationer","d":"0:48",new:true},{t:"Intro – tæl 1–32","d":"0:40"},{t:"Lift-sekvens (langsom)","d":"1:05"},{t:"Musik – DM 2026 (mix v3)","d":"3:12",audio:true}];
+const NOTES=[["18. okt","Maja","Arm i tælling 5–8 i 2. vers: hold linjen højere, blikket op."],["11. okt","Line","Flot fremgang på pirouetter. Arbejd videre med spot."]];
+let MEMBERS=[["Freja T.","The AXIS","Elite+",true],["Alma N.","The AXIS","Elite+",true],["Ida S.","The AXIS","Elite+",false],["Mille K.","Apexion","Elite+",true],["Clara B.","Empire","Øvet",true],["Nora H.","Satellite Stars","Øvet",true],["Liv J.","Mini Angels","Øvet+",false]];
+const WAITLIST=[["Sofia M.","The AXIS","Audition 2. nov"],["Emma L.","Apexion","Audition 2. nov"],["Lærke P.","Mini Angels","Venteliste"]];
+const MILESTONES=[["Første konkurrence","Nordic 2025",true],["50 træninger","Jan 2026",true],["Rykket til Elite+","Aug 2026",true],["100 træninger","82 / 100",false],["Første solo","Planlagt forår 27",false]];
+const BIRTHDAYS=[["Alma N.","Torsdag","14 år"],["Clara B.","Søndag","11 år"]];
+const MESSAGES=[
+ {id:"m1",from:"Line Lund Olesen",title:"Samtykke: foto/video til DM",text:"Vi filmer og fotograferer ved DM-kvalifikationen. Bekræft venligst at vi må bruge billeder af din danser på sociale medier og i appen.",date:"I dag",needs:"accept",done:false},
+ {id:"m2",from:"Line Lund Olesen",title:"Ændring: Teknik torsdag flyttes 15 min",text:"Teknik for Apexion & Airy starter kl. 20.10 i stedet for 19.55 de næste tre torsdage pga. hallen.",date:"I går",needs:"read",done:false},
+ {id:"m3",from:"Stjerneshoppen",title:"Din bestilling er klar",text:"Teamjakke str. S ligger klar til udlevering ved næste træning. 549 kr. er betalt.",date:"Søndag",needs:"read",done:true},
+];
+const SHOP=[["Teamjakke LLDS","549 kr.","S · klar til udlevering"],["Træningssæt sort/guld","399 kr.","Bestilt"],["Drikkedunk m. logo","89 kr.","—"],["Konkurrence-tights (2 stk.)","179 kr.","—"]];
+const PAYMENTS=[["Kontingent – efterår 26","1.450 kr.","Betalt 4. aug"],["DM-gebyr","350 kr.","Forfalder 25. okt"],["Workshop Hip Hop 29/11","255 kr.","Ikke tilmeldt"]];
+
+/* ---------- state ---------- */
+let S={role:null,screen:"login",params:{},stack:[],tab:"home",cal:{day:1,room:"both"},absent:{},accepted:{},liked:{},playing:false,speed:1,mirror:false,loop:null,formation:0,attendance:{},season:{}};
+const $=s=>document.querySelector(s);
+const phone=$("#phone");
+let toastT;
+function toast(m){let t=$(".toast");if(t)t.remove();t=document.createElement("div");t.className="toast fade";t.textContent=m;phone.appendChild(t);clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),2600)}
+function go(screen,params={}){S.stack.push({screen:S.screen,params:S.params});S.screen=screen;S.params=params;render()}
+function back(){const p=S.stack.pop();if(p){S.screen=p.screen;S.params=p.params}else{S.screen="tab"}render()}
+function tab(t){S.tab=t;S.screen="tab";S.stack=[];render()}
+function sheet(html){const bg=document.createElement("div");bg.className="sheet-bg";bg.innerHTML=`<div class="sheet fade"><div class="handle"></div>${html}</div>`;bg.addEventListener("click",e=>{if(e.target===bg)bg.remove()});phone.appendChild(bg);return bg}
+function closeSheet(){const s=$(".sheet-bg");if(s)s.remove()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const me=()=>USERS[S.role];
+const isStaff=()=>S.role==="trainer"||S.role==="admin";
+const myTeam=()=>S.role==="trainer"?"Hip Hop":"The AXIS";
+
+/* ---------- artwork: generative "stage light" canvases (stand-ins for the studio's photos) ---------- */
+function art(c,seed,opts={}){const ctx=c.getContext("2d");const W=c.width=(c.clientWidth||300)*2,H=c.height=(c.clientHeight||200)*2;let r=seed*9301+49297;const rnd=()=>{r=(r*9301+49297)%233280;return r/233280};
+ // stage floor + back wall
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#070707");bg.addColorStop(.62,"#15120d");bg.addColorStop(1,"#0b0a09");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // haze / spotlights from above
+ const n=2+Math.floor(rnd()*2);for(let i=0;i<n;i++){const x=W*(.15+rnd()*.7),gold=rnd()>.35;ctx.save();ctx.globalCompositeOperation="lighter";const g=ctx.createLinearGradient(x,0,x,H);g.addColorStop(0,gold?"rgba(230,200,122,.55)":"rgba(200,195,185,.4)");g.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x-W*.04,-10);ctx.lineTo(x+W*.04,-10);ctx.lineTo(x+W*(.25+rnd()*.2),H);ctx.lineTo(x-W*(.25+rnd()*.2),H);ctx.closePath();ctx.filter="blur(18px)";ctx.fill();ctx.restore()}
+ // bokeh
+ ctx.save();ctx.globalCompositeOperation="lighter";const nb=Math.round(W*H/26000);for(let i=0;i<nb;i++){const x=rnd()*W,y=rnd()*H*.75,rad=Math.max(2,H*.012+rnd()*H*.03);const g=ctx.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,`rgba(243,220,154,${.25+rnd()*.35})`);g.addColorStop(1,"rgba(243,220,154,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rad,0,7);ctx.fill()}ctx.restore();
+ // floor reflection band
+ const fl=ctx.createLinearGradient(0,H*.72,0,H);fl.addColorStop(0,"rgba(201,162,74,.18)");fl.addColorStop(1,"rgba(201,162,74,0)");ctx.fillStyle=fl;ctx.fillRect(0,H*.72,W,H*.28);
+ if(opts.figure!==false){ // dancer silhouette, varying pose
+  const pose=Math.floor(rnd()*4),cx=W*(.45+rnd()*.25),s=Math.min(H*.3,W*.16),fy=H*.88;ctx.fillStyle="#050505";ctx.strokeStyle="#050505";ctx.lineCap="round";ctx.lineJoin="round";
+  const L=(x1,y1,x2,y2,w)=>{ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()};
+  const C=(x1,y1,cx1,cy1,x2,y2,w)=>{ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(cx1,cy1,x2,y2);ctx.stroke()};
+  const hip=[cx,fy-s*1.05],sh=[cx+(pose===2?s*.15:0),fy-s*1.9];
+  // torso
+  C(hip[0],hip[1],hip[0]+s*.1,fy-s*1.5,sh[0],sh[1],s*.34);
+  // head
+  ctx.beginPath();ctx.arc(sh[0]+(pose===2?s*.12:s*.02),sh[1]-s*.32,s*.17,0,7);ctx.fill();
+  if(pose===0){ // arabesque
+   L(hip[0],hip[1],cx-s*.12,fy,s*.17);L(hip[0],hip[1],cx+s*.9,fy-s*1.25,s*.16);C(sh[0],sh[1],sh[0]-s*.5,sh[1]-s*.45,sh[0]-s*.95,sh[1]-s*.65,s*.12);C(sh[0],sh[1],sh[0]+s*.4,sh[1]-.1*s,sh[0]+s*.75,sh[1]+s*.1,s*.12)}
+  else if(pose===1){ // jump, arms up
+   L(hip[0],hip[1],cx-s*.55,fy-s*.55,s*.17);L(cx-s*.55,fy-s*.55,cx-s*.35,fy-s*.1,s*.15);L(hip[0],hip[1],cx+s*.6,fy-s*.6,s*.17);L(cx+s*.6,fy-s*.6,cx+s*.95,fy-s*.95,s*.15);L(sh[0],sh[1],sh[0]-s*.55,sh[1]-s*.85,s*.12);L(sh[0],sh[1],sh[0]+s*.55,sh[1]-s*.85,s*.12)}
+  else if(pose===2){ // lean / contemporary reach
+   L(hip[0],hip[1],cx-s*.15,fy,s*.17);L(hip[0],hip[1],cx+s*.35,fy,s*.17);C(sh[0],sh[1],sh[0]+s*.5,sh[1]-s*.6,sh[0]+s*.9,sh[1]-s*.95,s*.12);C(sh[0],sh[1],sh[0]-s*.4,sh[1]+s*.2,sh[0]-s*.7,sh[1]+s*.5,s*.12)}
+  else{ // pose on relevé, arms in V
+   L(hip[0],hip[1],cx-s*.1,fy,s*.17);L(hip[0],hip[1],cx+s*.15,fy,s*.17);L(sh[0],sh[1],sh[0]-s*.7,sh[1]-s*.5,s*.12);L(sh[0],sh[1],sh[0]+s*.7,sh[1]-s*.5,s*.12)}
+  // rim light
+  ctx.save();ctx.globalCompositeOperation="lighter";const rl=ctx.createRadialGradient(cx,fy-s*1.3,s*.2,cx,fy-s*1.3,s*1.6);rl.addColorStop(0,"rgba(230,200,122,.22)");rl.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=rl;ctx.fillRect(0,0,W,H);ctx.restore();
+  // floor shadow/reflection
+  const sg=ctx.createRadialGradient(cx,fy+4,0,cx,fy+4,s*.6);sg.addColorStop(0,"rgba(0,0,0,.6)");sg.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=sg;ctx.fillRect(0,fy-20,W,80);
+ }
+ // film grain
+ ctx.save();ctx.globalAlpha=.06;for(let i=0;i<W*H/900;i++){ctx.fillStyle=rnd()>.5?"#fff":"#000";ctx.fillRect(rnd()*W,rnd()*H,2,2)}ctx.restore();
+ const v=ctx.createLinearGradient(0,0,0,H);v.addColorStop(0,"rgba(10,10,11,0)");v.addColorStop(.55,"rgba(10,10,11,.1)");v.addColorStop(1,"rgba(10,10,11,.8)");ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+}
+const PICK={7:5,3:1,11:4,80:1,81:4,82:3,83:5,5:3,9:5,14:2,15:4,29:6,120:6,121:1,122:4,123:6,50:4,51:5,52:1,53:4,54:6,60:4,61:5,62:1,63:4,64:6,21:5};
+function paint(){phone.querySelectorAll("canvas[data-seed]").forEach(c=>{const seed=+c.dataset.seed;const n=PICK[seed]??(seed%6+1);const small=(c.clientWidth||300)<200;const img=document.createElement("img");img.src=`img/0${n}${small?"s":""}.jpg`;img.alt="";img.className="pic";img.style.cssText=c.getAttribute("style")||"";if(c.classList.contains("bgc"))img.classList.add("bgc");c.replaceWith(img)})}
+
+/* ---------- icons ---------- */
+const I={home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',team:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>',chat:'<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>',star:'<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',grid:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>',user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'};
+const ic=(n,sz=18)=>`<span style="display:inline-grid;width:${sz}px;height:${sz}px">${I[n].replace("<svg",`<svg style="width:${sz}px;height:${sz}px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"`)}</span>`;
+
+/* ---------- screens ---------- */
+function topbar(title,opts={}){return `<div class="top">${opts.noBack?"":`<button class="back" onclick="back()" aria-label="Tilbage">‹</button>`}<h1>${title}</h1>${opts.right||""}</div>`}
+
+function loginScreen(){return `<div class="login fade"><canvas class="bgc" data-seed="7" data-rib="4" data-fig="0"></canvas>
+ <svg class="brand" viewBox="-30 0 300 230" width="220" aria-label="LL Dance Studio">
+<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3dc9a"/><stop offset=".35" stop-color="#c9a24a"/><stop offset=".55" stop-color="#8c6c25"/><stop offset=".8" stop-color="#e6c87a"/><stop offset="1" stop-color="#a8832f"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#e6c87a"/><stop offset="1" stop-color="#b48a35"/></linearGradient>
+<linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="url(#g2)" filter="url(#glow)"><path d="M120 6l3.6 7.6 8.3 1.1-6.1 5.7 1.6 8.2-7.4-4.1-7.4 4.1 1.6-8.2-6.1-5.7 8.3-1.1z"/><path d="M93 12l3 6.1 6.7.9-4.9 4.6 1.3 6.6-6.1-3.3-6.1 3.3 1.3-6.6-4.9-4.6 6.7-.9z"/><path d="M147 12l3 6.1 6.7.9-4.9 4.6 1.3 6.6-6.1-3.3-6.1 3.3 1.3-6.6-4.9-4.6 6.7-.9z"/><path d="M69 24l2.5 5 5.5.8-4 3.8 1 5.4-5-2.7-5 2.7 1-5.4-4-3.8 5.5-.8z"/><path d="M171 24l2.5 5 5.5.8-4 3.8 1 5.4-5-2.7-5 2.7 1-5.4-4-3.8 5.5-.8z"/></g>
+<circle cx="120" cy="105" r="62" fill="url(#g1)"/><circle cx="120" cy="105" r="62" fill="url(#sheen)"/><circle cx="120" cy="105" r="58" fill="none" stroke="#fff3c4" stroke-opacity=".35" stroke-width="1"/>
+<g transform="matrix(-1 0 0 1 240 0)"><text x="124" y="129" text-anchor="start" font-family="Cormorant Garamond,Georgia,serif" font-weight="600" font-size="72" fill="#0c0b0a">L</text></g><text x="124" y="129" text-anchor="start" font-family="Cormorant Garamond,Georgia,serif" font-weight="600" font-size="72" fill="#0c0b0a">L</text><rect x="119" y="72" width="2" height="66" fill="#0c0b0a"/>
+<text x="120" y="212" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-weight="600" font-size="34" fill="url(#g2)" letter-spacing="4">DANCE STUDIO</text>
+</svg>
+ <div style="text-align:center"><h2 style="font-size:30px;line-height:1.05">Velkommen <em style="font-weight:400">backstage.</em></h2><p class="muted small" style="margin:6px 0 0">Hold, sale, koreografi og konkurrencer – ét sted for hele danseskolen.</p></div>
+ <div><div class="eyebrow" style="margin-bottom:10px">Log ind som</div>
+ <div class="roles">
+  <button onclick="login('dancer')"><b>Danser</b><small>Freja · The AXIS</small></button>
+  <button onclick="login('parent')"><b>Forælder</b><small>Steffen · forælder til Freja</small></button>
+  <button onclick="login('trainer')"><b>Træner</b><small>Maja · Hip Hop & Styrke</small></button>
+  <button onclick="login('admin')"><b>Admin</b><small>Line · ejer</small></button>
+ </div></div>
+ <p class="tiny" style="text-align:center;margin:0">Demo – data er fiktive. Login sker normalt med MitID eller e-mail.</p></div>`}
+function login(r){S.role=r;S.screen="tab";S.tab="home";S.stack=[];render();toast(`Logget ind som ${USERS[r].role}: ${USERS[r].name.split(" ")[0]}`)}
+function logout(){S.role=null;S.screen="login";S.stack=[];render()}
+
+function nav(){const items=S.role==="admin"?[["home","Hjem","home"],["cal","Sale","cal"],["teams","Hold","team"],["social","Social","chat"],["admin","Admin","grid"]]:[["home","Hjem","home"],["cal","Sale","cal"],["team","Mit hold","team"],["social","Social","chat"],["comp","Events","star"]];
+ return `<nav class="nav">${items.map(([k,l,i])=>`<button class="${S.tab===k?"on":""}" onclick="tab('${k}')">${I[i]}<span>${l}</span></button>`).join("")}</nav>`}
+
+function nextTrainings(n=3){const d=1;return SCHEDULE.filter(t=>t.day===d&&(S.role==="trainer"?t.teacher==="Maja":t.name==="The AXIS"||t.name.startsWith("Teknik – Apexion")||t.name==="Styrketræning"||t.name==="Contemporary")).slice(0,n)}
+
+function homeScreen(){const u=me();const first=u.name.split(" ")[0];
+ if(S.role==="admin")return adminHome();
+ const parentCalm=S.role==="parent";
+ return `${topbar(`Hej ${first}`,{noBack:true,right:`<button class="avatar" onclick="go('profile')">${u.initials}</button>`})}<div class="content fade">
+ <div class="hero tap" onclick="go('compDetail',{id:'c1'})"><canvas data-seed="3"></canvas><div><div class="eyebrow">Om 19 dage</div><h2>DM-kvalifikation</h2><div class="small muted">8. nov · Arena Randers · The AXIS startnr. 14</div></div></div>
+ ${MESSAGES.filter(m=>!m.done&&!S.accepted[m.id]).length?`<div class="card tap" style="border-color:var(--gold3)" onclick="go('messages')"><div class="row between"><div class="row"><span class="dot"></span><b style="font-weight:500">${MESSAGES.filter(m=>!m.done&&!S.accepted[m.id]).length} beskeder kræver svar</b></div><span class="gold">›</span></div><div class="small muted">${esc(MESSAGES[0].title)}</div></div>`:""}
+ <div class="sec"><div class="row between"><h2>${parentCalm?"Frejas uge":"Din uge"}</h2><button class="small gold" onclick="go('schedule')">Hele skemaet</button></div>
+ <div class="card list">${nextTrainings().map(t=>`<div class="item"><div class="time">${DAYS[t.day]} ${t.start}</div><div class="grow"><div>${esc(t.name)}</div><div class="tiny">${ROOMS[t.room]} · ${t.teacher}</div></div>${S.role!=="trainer"?(S.absent[t.id]?`<span class="chip warn">Afbud sendt</span>`:`<button class="btn ghost sm" onclick="event.stopPropagation();absentSheet(${t.id})">Meld afbud</button>`):`<span class="chip">${attendanceCount(t.id)} tilmeldt</span>`}</div>`).join("")}</div></div>
+ ${S.role==="dancer"?`<div class="sec"><div class="row between"><h2>Øv hjemme</h2><button class="small gold" onclick="go('choreo')">Alle videoer</button></div><div class="card tap" onclick="go('player',{i:1})"><div class="row"><div class="art" style="width:64px;height:64px;flex:none"><canvas data-seed="21" data-fig="0" data-rib="2"></canvas></div><div class="grow"><div class="row"><span class="chip gold">Ny</span></div><div style="margin-top:4px">2. vers – nye formationer</div><div class="tiny">The AXIS · 0:48 · Maja</div></div><span class="gold">▶</span></div></div></div>`:""}
+ ${S.role==="trainer"?`<div class="sec"><h2>I dag</h2><div class="kv"><div class="card"><div class="n">3</div><div class="tiny">timer at undervise</div></div><div class="card"><div class="n">2</div><div class="tiny">afbud modtaget</div></div></div><button class="btn ghost block" onclick="go('attendance',{id:13})">Tag fremmøde – Styrketræning 18.30</button></div>`:""}
+ ${parentCalm?`<div class="sec"><h2>Betaling</h2><div class="card list">${PAYMENTS.map(p=>`<div class="item"><div class="grow"><div>${p[0]}</div><div class="tiny">${p[2]}</div></div><div style="font-variant-numeric:tabular-nums">${p[1]}</div></div>`).join("")}</div></div>`:""}
+ <div class="sec"><div class="row between"><h2>Fra holdet</h2><button class="small gold" onclick="tab('social')">Se alt</button></div>${POSTS.slice(0,2).map(postCard).join("")}</div>
+ ${S.role==="dancer"?`<div class="sec"><div class="row between"><h2>Stjernevæg</h2><button class="small gold" onclick="go('stars')">Se alle</button></div><div class="card"><div class="row between"><div>100 træninger</div><div class="small muted">82 / 100</div></div><div class="prog"><i style="width:82%"></i></div><div class="tiny">Fødselsdag på torsdag: Alma fylder 14 🎂</div></div></div>`:""}
+ </div>`}
+function attendanceCount(id){const a=S.attendance[id];return a?Object.values(a).filter(Boolean).length:14}
+
+function adminHome(){const u=me();return `${topbar("Godmorgen, Line",{noBack:true,right:`<button class="avatar" onclick="go('profile')">${u.initials}</button>`})}<div class="content fade">
+ <div class="kv"><div class="card tap" onclick="tab('cal')"><div class="n">17</div><div class="tiny">timer i salene i dag</div></div><div class="card tap" onclick="go('absences')"><div class="n">${4+Object.keys(S.absent).length}</div><div class="tiny">afbud i dag</div></div><div class="card tap" onclick="go('bookingRequests')"><div class="n">2</div><div class="tiny">bookinger afventer</div></div><div class="card tap" onclick="go('members')"><div class="n">3</div><div class="tiny">åbne betalinger</div></div></div>
+ <div class="hero tap" onclick="go('compDetail',{id:'c1'})"><canvas data-seed="3"></canvas><div><div class="eyebrow">Næste · 8. nov</div><h2>DM-kvalifikation</h2><div class="small muted">AXIS, Apexion, Airy · 3 dansere mangler tilmelding</div></div></div>
+ <div class="sec"><h2>Drift</h2><div class="card list">
+  <div class="item tap" onclick="go('season')"><div class="grow">Sæsonplanlægger 26/27</div><span class="tiny">Publiceret 27. sep</span><span class="gold">›</span></div>
+  <div class="item tap" onclick="go('staff')"><div class="grow">Trænerplan & vikarer</div><span class="chip warn">1 vikar mangler</span><span class="gold">›</span></div>
+  <div class="item tap" onclick="go('members')"><div class="grow">Medlemmer & kontingent</div><span class="tiny">142 aktive</span><span class="gold">›</span></div>
+  <div class="item tap" onclick="go('access')"><div class="grow">Holdadgang (dansere & forældre)</div><span class="chip warn">3 afventer</span><span class="gold">›</span></div>
+  <div class="item tap" onclick="go('audition')"><div class="grow">Auditions & venteliste</div><span class="tiny">2. nov</span><span class="gold">›</span></div>
+  <div class="item tap" onclick="go('composeMsg')"><div class="grow">Send officiel besked</div><span class="gold">›</span></div>
+ </div></div>
+ <div class="sec"><div class="row between"><h2>Seneste i feedet</h2><button class="small gold" onclick="tab('social')">Se alt</button></div>${POSTS.slice(1,3).map(postCard).join("")}</div></div>`}
+
+/* --- calendar / rooms --- */
+function calScreen(){const d=S.cal.day;const rooms=S.cal.room==="both"?["S","L"]:[S.cal.room];const all=[...SCHEDULE,...BOOKINGS].filter(e=>e.day===d);const hours=[];for(let h=15;h<=21;h++)hours.push(h);if(d>=4){hours.length=0;for(let h=9;h<=20;h++)hours.push(h)}
+ const cell=(room,h)=>{const ev=all.find(e=>e.room===room&&parseInt(e.start)===h);if(ev){const mine=ev.kind==="booking"&&(ev.by===me().name.split(" ")[0]);return `<div class="slot ${ev.kind==="booking"?"booking":"busy"} ${mine?"mine":""}" onclick="eventSheet('${ev.id}')"><span>${esc(ev.name)}<br><small class="tiny">${ev.start}–${ev.end}</small></span></div>`}
+  const covered=all.some(e=>e.room===room&&parseInt(e.start)<h&&parseFloat(e.end.replace(".",":").replace(":","."))>h);return covered?`<div class="slot" style="border:0"></div>`:`<div class="slot free" onclick="bookSheet('${room}',${h})">+ ledig</div>`};
+ return `${topbar("Sale",{noBack:true,right:`<button class="btn ghost sm" onclick="bookSheet('S',16)">Book</button>`})}<div class="content fade">
+ <div class="days">${DAYS.map((n,i)=>`<button class="${i===d?"on":""}" onclick="S.cal.day=${i};render()"><span>${n}</span><b>${19+i}</b></button>`).join("")}</div>
+ <div class="seg"><button class="${S.cal.room==="both"?"on":""}" onclick="S.cal.room='both';render()">Begge</button><button class="${S.cal.room==="S"?"on":""}" onclick="S.cal.room='S';render()">Store Sal</button><button class="${S.cal.room==="L"?"on":""}" onclick="S.cal.room='L';render()">Lille Sal</button></div>
+ <div class="cal" style="grid-template-columns:44px ${rooms.map(()=>"1fr").join(" ")}"><div></div>${rooms.map(r=>`<div class="h">${ROOMS[r]}</div>`).join("")}${hours.map(h=>`<div class="t">${h}.00</div>${rooms.map(r=>cell(r,h)).join("")}`).join("")}</div>
+ <div class="row small muted" style="gap:14px"><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:var(--card2);border:1px solid var(--line);display:inline-block"></i>Træning</span><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:rgba(127,182,134,.3);display:inline-block"></i>Booking</span><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;border:1px dashed var(--line);display:inline-block"></i>Ledig</span></div>
+ <p class="tiny">Træninger fra sæsonplanen booker salene automatisk. Dansere kan booke ledige tider til solo/duo; admin godkender.</p></div>`}
+function eventSheet(id){const e=[...SCHEDULE,...BOOKINGS].find(x=>String(x.id)===String(id));if(!e)return;const tr=e.kind==="training";
+ sheet(`<div class="eyebrow">${tr?"Træning":"Booking"}</div><h2>${esc(e.name)}</h2><div class="chips"><span class="chip">${DAYS[e.day]} ${e.start}–${e.end}</span><span class="chip">${ROOMS[e.room]}</span>${tr?`<span class="chip">${e.teacher}</span><span class="chip">${e.level}</span>`:`<span class="chip">Booket af ${e.by}</span>`}</div>
+ ${tr?`<div class="small muted">${e.group} · ${attendanceCount(e.id)} tilmeldt · ${S.absent[e.id]?1:2} afbud</div>`:""}
+ <div class="stack">${isStaff()&&tr?`<button class="btn primary block" onclick="closeSheet();go('editTraining',{id:${e.id}})">Redigér træning</button><button class="btn ghost block" onclick="closeSheet();go('attendance',{id:${e.id}})">Fremmøde</button><button class="btn ghost block" onclick="cancelTraining(${e.id})">Aflys og giv besked til holdet</button>`:""}
+ ${!isStaff()&&tr?(S.absent[e.id]?`<span class="chip warn">Afbud sendt</span>`:`<button class="btn ghost block" onclick="closeSheet();absentSheet(${e.id})">Meld afbud</button>`):""}
+ ${!tr&&(isStaff()||e.by===me().name.split(" ")[0])?`<button class="btn ghost block" onclick="BOOKINGS=BOOKINGS.filter(b=>b.id!=='${e.id}');closeSheet();render();toast('Booking slettet – tiden er ledig igen')">Slet booking</button>`:""}
+ ${!tr&&S.role==="admin"?`<button class="btn primary block" onclick="closeSheet();toast('Booking godkendt')">Godkend booking</button>`:""}</div>`)}
+function bookSheet(room,h){const name=me().name.split(" ")[0];sheet(`<div class="eyebrow">Book sal</div><h2>Ny booking</h2>
+ <div class="field"><label>Sal</label><div class="seg"><button class="${room==="S"?"on":""}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on');this.closest('.sheet').dataset.room='S'">Store Sal</button><button class="${room==="L"?"on":""}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on');this.closest('.sheet').dataset.room='L'">Lille Sal</button></div></div>
+ <div class="grid2"><div class="field"><label>Dag</label><select id="bk-day">${DAYS.map((d,i)=>`<option value="${i}" ${i===S.cal.day?"selected":""}>${d} ${19+i}. okt</option>`).join("")}</select></div><div class="field"><label>Fra</label><select id="bk-h">${[9,10,11,12,13,14,15,16,17,18,19,20].map(x=>`<option ${x===h?"selected":""}>${x}.00</option>`).join("")}</select></div></div>
+ <div class="field"><label>Varighed</label><div class="seg" id="bk-dur"><button class="on">1 time</button><button>2 timer</button><button>3 timer</button></div></div>
+ <div class="field"><label>Formål</label><input id="bk-name" placeholder="Fx Solo – ${name}, duo-træning, ekstra holdtræning" value="${S.role==="dancer"?`Solo – ${name}`:""}"></div>
+ <p class="tiny">${isStaff()?"Som træner/admin bookes salen med det samme.":"Din booking sendes til godkendelse hos admin. Du får besked, når den er godkendt."}</p>
+ <button class="btn primary block" onclick="confirmBook(this)">${isStaff()?"Book sal":"Send til godkendelse"}</button>`).querySelector(".sheet").dataset.room=room;
+ $("#bk-dur").querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#bk-dur").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on")})}
+function confirmBook(btn){const sh=btn.closest(".sheet");const room=sh.dataset.room||"S";const day=+$("#bk-day").value;const h=parseInt($("#bk-h").value);const dur=[...$("#bk-dur").querySelectorAll("button")].findIndex(b=>b.classList.contains("on"))+1;const name=$("#bk-name").value||"Booking";
+ const clash=[...SCHEDULE,...BOOKINGS].some(e=>e.day===day&&e.room===room&&parseInt(e.start)<h+dur&&parseFloat(e.end)>h);if(clash){toast("Salen er optaget i det tidsrum – vælg en anden tid");return}
+ BOOKINGS.push({id:"b"+Date.now(),day,room,start:h+".00",end:(h+dur)+".00",name,by:me().name.split(" ")[0],kind:"booking"});S.cal.day=day;closeSheet();render();toast(isStaff()?`${ROOMS[room]} booket ${DAYS[day]} ${h}.00`:"Sendt til godkendelse – admin får besked")}
+function absentSheet(id){const t=SCHEDULE.find(x=>x.id===id);sheet(`<div class="eyebrow">Afbud</div><h2>${esc(t.name)}</h2><div class="small muted">${DAYS[t.day]} ${t.start}–${t.end} · ${ROOMS[t.room]} · ${t.teacher}</div>
+ <div class="field"><label>Årsag (valgfri)</label><div class="chips" id="ab-reason"><button class="chip">Syg</button><button class="chip">Skole</button><button class="chip">Skade</button><button class="chip">Ferie</button><button class="chip">Andet</button></div></div>
+ <div class="field"><label>Besked til træneren</label><textarea placeholder="Fx: Har ondt i foden, kommer og ser på men danser ikke."></textarea></div>
+ <p class="tiny">${S.role==="dancer"?"Din forælder får en kopi af afbuddet.":"Freja får en kopi af afbuddet."} Træneren ser det på fremmødelisten.</p>
+ <button class="btn primary block" onclick="S.absent[${id}]=true;closeSheet();render();toast('Afbud sendt til ${t.teacher}')">Send afbud</button>`);$("#ab-reason").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{$("#ab-reason").querySelectorAll(".chip").forEach(x=>x.classList.remove("gold"));c.classList.add("gold")})}
+function cancelTraining(id){const t=SCHEDULE.find(x=>x.id===id);closeSheet();sheet(`<h2>Aflys ${esc(t.name)}?</h2><p class="small muted" style="margin:0">Holdet (${attendanceCount(id)} dansere + forældre) får en push-besked, og ${ROOMS[t.room]} bliver ledig ${DAYS[t.day]} ${t.start}–${t.end}.</p><div class="field"><label>Besked</label><textarea>Træningen i dag er aflyst pga. sygdom. Vi ses næste uge!</textarea></div><button class="btn primary block" onclick="SCHEDULE=SCHEDULE.filter(x=>x.id!==${id});closeSheet();render();toast('Aflyst – besked sendt til holdet, salen er frigivet')">Aflys og send</button><button class="btn ghost block" onclick="closeSheet()">Fortryd</button>`)}
+
+function editTrainingScreen(){const id=S.params.id;const t=id!=null?SCHEDULE.find(x=>x.id===id):{name:"",day:1,room:"S",start:"16.00",end:"17.00",group:"",level:"Øvet",teacher:"Line"};const isNew=id==null;
+ return `${topbar(isNew?"Ny træning":"Redigér træning")}<div class="content fade">
+ <div class="field"><label>Hold / titel</label><input id="et-name" value="${esc(t.name)}" placeholder="Fx The AXIS"></div>
+ <div class="grid2"><div class="field"><label>Dag</label><select id="et-day">${DAYS.map((d,i)=>`<option value="${i}" ${i===t.day?"selected":""}>${d}</option>`).join("")}</select></div><div class="field"><label>Sal</label><select id="et-room"><option value="S" ${t.room==="S"?"selected":""}>Store Sal</option><option value="L" ${t.room==="L"?"selected":""}>Lille Sal</option></select></div></div>
+ <div class="grid2"><div class="field"><label>Start</label><input id="et-start" value="${t.start}"></div><div class="field"><label>Slut</label><input id="et-end" value="${t.end}"></div></div>
+ <div class="grid2"><div class="field"><label>Træner</label><select id="et-teacher">${["Line","Maja","Sofie","Vikar"].map(x=>`<option ${x===t.teacher?"selected":""}>${x}</option>`).join("")}</select></div><div class="field"><label>Niveau</label><select id="et-level">${["Begynder","Let øvet","Øvet","Øvet+","Elite","Elite+","Alle"].map(x=>`<option ${x===t.level?"selected":""}>${x}</option>`).join("")}</select></div></div>
+ <div class="field"><label>Aldersgruppe</label><input id="et-group" value="${esc(t.group)}" placeholder="Mini / Børn / Junior / Voksen"></div>
+ <div class="toggle"><div><div>Gentag hver uge</div><div class="tiny">Hele sæsonen (til 20. juni)</div></div><div class="sw on"><i></i></div></div>
+ <div class="toggle"><div><div>Book salen automatisk</div><div class="tiny">Tiden blokeres i salkalenderen</div></div><div class="sw on"><i></i></div></div>
+ <div class="toggle"><div><div>Giv holdet besked om ændringen</div></div><div class="sw on"><i></i></div></div>
+ <button class="btn primary block" onclick="saveTraining(${isNew?"null":id})">${isNew?"Opret træning":"Gem ændringer"}</button>
+ ${!isNew?`<button class="btn ghost block" onclick="SCHEDULE=SCHEDULE.filter(x=>x.id!==${id});back();toast('Træning slettet – salen er frigivet')">Slet træning</button>`:""}</div>`}
+function saveTraining(id){const v={name:$("#et-name").value||"Træning",day:+$("#et-day").value,room:$("#et-room").value,start:$("#et-start").value,end:$("#et-end").value,teacher:$("#et-teacher").value,level:$("#et-level").value,group:$("#et-group").value,kind:"training"};
+ const clash=[...SCHEDULE,...BOOKINGS].some(e=>String(e.id)!==String(id)&&e.day===v.day&&e.room===v.room&&parseFloat(e.start)<parseFloat(v.end)&&parseFloat(e.end)>parseFloat(v.start));if(clash){toast(`${ROOMS[v.room]} er optaget ${DAYS[v.day]} ${v.start}–${v.end}`);return}
+ if(id==null){SCHEDULE.push({id:Date.now(),...v})}else{Object.assign(SCHEDULE.find(x=>x.id===id),v)}S.cal.day=v.day;S.tab="cal";S.screen="tab";S.stack=[];render();toast("Gemt – salen er booket og holdet har fået besked")}
+
+function attendanceScreen(){const t=SCHEDULE.find(x=>x.id===S.params.id)||SCHEDULE[13];const names=["Freja T.","Alma N.","Ida S.","Mille K.","Clara B.","Nora H.","Liv J.","Sara L.","Emilie R.","Maja B.","Signe V.","Thea O.","Olivia D.","Kaja F."];S.attendance[t.id]=S.attendance[t.id]||Object.fromEntries(names.map(n=>[n,true]));const a=S.attendance[t.id];const absent=new Set(["Ida S.",...(S.absent[t.id]?["Freja T."]:[])]);
+ return `${topbar("Fremmøde")}<div class="content fade"><div><h2 style="font-size:24px">${esc(t.name)}</h2><div class="small muted">${DAYS[t.day]} ${t.start} · ${ROOMS[t.room]} · ${Object.values(a).filter(Boolean).length}/${names.length} til stede</div></div>
+ <div class="card list">${names.map(n=>`<div class="item" onclick="S.attendance[${t.id}]['${n}']=!S.attendance[${t.id}]['${n}'];render()"><div class="check ${a[n]?"on":""}">${a[n]?"✓":""}</div><div class="grow">${n}${absent.has(n)?` <span class="chip warn" style="margin-left:6px">Afbud: ${n==="Ida S."?"syg":"skole"}</span>`:""}</div></div>`).join("")}</div>
+ <button class="btn primary block" onclick="back();toast('Fremmøde gemt')">Gem fremmøde</button></div>`}
+
+function scheduleScreen(){const mine=S.role==="trainer"?SCHEDULE.filter(t=>t.teacher==="Maja"):SCHEDULE.filter(t=>["The AXIS","Teknik – Apexion & Airy","Contemporary","Styrketræning"].includes(t.name)&&t.level!=="Begynder"&&!(t.name==="Styrketræning"&&t.day===2));
+ return `${topbar(S.role==="parent"?"Frejas skema":"Mit skema")}<div class="content fade">${[0,1,2,3].map(d=>`<div class="sec"><div class="eyebrow">${["Mandag","Tirsdag","Onsdag","Torsdag"][d]}</div><div class="card list">${mine.filter(t=>t.day===d).map(t=>`<div class="item" onclick="eventSheet('${t.id}')"><div class="time">${t.start}–${t.end}</div><div class="grow"><div>${esc(t.name)}</div><div class="tiny">${ROOMS[t.room]} · ${t.teacher}</div></div>${S.absent[t.id]?`<span class="chip warn">Afbud</span>`:""}</div>`).join("")||`<div class="item tiny">Ingen træning</div>`}</div></div>`).join("")}
+ <div class="card"><div class="eyebrow">Ferie & lukkedage</div><div class="small">Efterårsferie uge 42 · Juleferie 20. dec – 4. jan · Vinterferie uge 7</div></div></div>`}
+
+/* --- team --- */
+function teamScreen(){const team=myTeam();const u=me();
+ return `${topbar(team,{noBack:true})}<div class="content fade">
+ <div class="hero"><canvas data-seed="11"></canvas><div><div class="eyebrow">Showdance · Junior · Elite+</div><h2>${team}</h2><div class="small muted">14 dansere · Line Lund Olesen · Tirsdag 16.45 Store Sal</div></div></div>
+ <div class="grid2"><div class="card tap" onclick="go('choreo')"><div class="eyebrow">Koreografi</div><div>5 videoer · 2 nye</div></div><div class="card tap" onclick="go('folders')"><div class="eyebrow">Mapper</div><div>176 billeder</div></div><div class="card tap" onclick="go('formation')"><div class="eyebrow">Formationer</div><div>DM 2026 · 6 billeder</div></div><div class="card tap" onclick="go('members',{team})"><div class="eyebrow">Dansere</div><div>14 · 2 på venteliste</div></div></div>
+ ${S.role!=="parent"?`<div class="sec"><div class="row between"><h2>Noter til dig</h2>${isStaff()?`<button class="small gold" onclick="toast('Vælg en danser for at skrive en note')">Ny note</button>`:""}</div><div class="card stack">${NOTES.map(n=>`<div class="note"><div class="tiny">${n[0]} · ${n[1]}</div><div class="small">${n[2]}</div></div>`).join("")}</div></div>`:""}
+ <div class="sec"><h2>Næste for holdet</h2><div class="card list">${COMPS.slice(0,2).map(c=>`<div class="item" onclick="go('compDetail',{id:'${c.id}'})"><div class="time">${c.date}</div><div class="grow"><div>${c.title}</div><div class="tiny">${c.place}</div></div><span class="gold">›</span></div>`).join("")}</div></div>
+ <div class="sec"><h2>Trofæhylde</h2><div class="card list">${RESULTS.filter(r=>r[2]===team||S.role==="trainer").map(r=>`<div class="item"><div class="time">${r[0]}</div><div class="grow"><div>${r[1]}</div><div class="tiny">${r[2]}</div></div><span class="gold small">${r[3]}</span></div>`).join("")}</div></div>
+ ${isStaff()?`<button class="btn ghost block" onclick="go('access')">Administrér adgang til holdet</button>`:""}</div>`}
+function teamsScreen(){return `${topbar("Hold",{noBack:true,right:`<button class="btn ghost sm" onclick="go('editTraining',{})">+ Træning</button>`})}<div class="content fade"><div class="tabs"><button class="on">Showdance</button><button onclick="toast('Demo: filter')">Åbne hold</button><button onclick="toast('Demo: filter')">Solo/duo</button></div>
+ <div class="stack">${TEAMS.map((t,i)=>`<div class="card tap row" onclick="go('team')"><div class="art" style="width:52px;height:52px;flex:none"><canvas data-seed="${30+i}" data-fig="0" data-rib="2"></canvas></div><div class="grow"><div>${t}</div><div class="tiny">${["14 dansere · Elite+ · Lukket","12 · Elite+ · Lukket","11 · Elite · Lukket","10 · Elite · Lukket","9 · Øvet+ · Lukket","13 · Øvet","12 · Øvet+","15 · Begynder","14 · Øvet","11 · Øvet+","16 · Begynder","12 · Øvet","14 · Begynder","8 · Voksen elite"][i]}</div></div><span class="gold">›</span></div>`).join("")}</div></div>`}
+
+function choreoScreen(){return `${topbar("Koreografi",{right:isStaff()?`<button class="btn ghost sm" onclick="toast('Demo: optag eller upload video til holdet')">+ Upload</button>`:""})}<div class="content fade"><div class="eyebrow">The AXIS · DM 2026 – "Gravity"</div>
+ <div class="stack">${VIDEOS.map((v,i)=>`<div class="card tap row" onclick="go('player',{i:${i}})"><div class="art" style="width:76px;height:48px;aspect-ratio:auto;flex:none;border-radius:8px"><canvas data-seed="${50+i}" data-fig="0" data-rib="2"></canvas><span style="position:absolute;inset:0;display:grid;place-items:center;color:var(--gold2)">${v.audio?"♪":"▶"}</span></div><div class="grow"><div class="row">${v.new?`<span class="chip gold">Ny</span>`:""}</div><div>${v.t}</div><div class="tiny">${v.d}${v.audio?" · lydfil":""} · kun The AXIS</div></div></div>`).join("")}</div>
+ <p class="tiny">Videoer kan kun ses i appen af holdets dansere, forældre og trænere. Download og deling er slået fra.</p></div>`}
+function playerScreen(){const v=VIDEOS[S.params.i||0];const sp=S.speed;
+ return `${topbar("Afspiller")}<div class="content fade"><div class="video" style="${S.mirror?"transform:scaleX(-1)":""}"><canvas data-seed="${60+(S.params.i||0)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.8"></canvas><div class="play"><button onclick="S.playing=!S.playing;render()" aria-label="Afspil">${S.playing?"❚❚":"▶"}</button></div><div class="bar"><i style="width:${S.playing?"62":"38"}%"></i></div></div>
+ <div><h2 style="font-size:22px">${v.t}</h2><div class="small muted">The AXIS · ${v.d} · uploadet af Maja 18. okt</div></div>
+ <div class="sec"><div class="eyebrow">Øv hjemme</div><div class="seg"><button class="${sp===.5?"on":""}" onclick="S.speed=.5;render()">½ tempo</button><button class="${sp===.75?"on":""}" onclick="S.speed=.75;render()">¾ tempo</button><button class="${sp===1?"on":""}" onclick="S.speed=1;render()">Fuld</button></div>
+ <div class="toggle"><div>Spejlvend (se det som i spejlet)</div><div class="sw ${S.mirror?"on":""}" onclick="S.mirror=!S.mirror;render()"><i></i></div></div>
+ <div class="field"><label>Loop 8 tællinger – vælg sekvens</label><div class="counts">${[1,2,3,4,5,6,7,8].map(n=>`<button class="${S.loop===n?"on":""}" onclick="S.loop=S.loop===${n}?null:${n};render();toast('Looper tælling ${(n-1)*8+1}–${n*8}')">${(n-1)*8+1}</button>`).join("")}</div></div></div>
+ <div class="row"><button class="btn ghost grow" onclick="go('formation')">Se formationer</button>${isStaff()?`<button class="btn ghost grow" onclick="toast('Demo: skriv note til danser på dette tidspunkt')">Note ved 0:31</button>`:""}</div></div>`}
+function formationScreen(){const sets=[[["F",50,30],["A",25,55],["I",75,55],["M",15,80],["C",40,80],["N",60,80],["L",85,80]],[["F",50,20],["A",35,45],["I",65,45],["M",20,70],["C",40,70],["N",60,70],["L",80,70]],[["F",15,25],["A",85,25],["I",50,50],["M",15,75],["C",35,90],["N",65,90],["L",85,75]]];const i=S.formation%sets.length;
+ return `${topbar("Formationer")}<div class="content fade"><div class="eyebrow">Gravity · ${["Intro (tæl 1–32)","1. vers","2. vers – ny"][i]}</div>
+ <div class="floor">${sets[i].map(d=>`<div class="d ${d[0]==="F"?"me":""}" style="left:${d[1]}%;top:${d[2]}%">${d[0]}</div>`).join("")}<div class="tiny" style="position:absolute;bottom:6px;left:0;right:0;text-align:center;letter-spacing:.2em">PUBLIKUM</div></div>
+ <div class="row"><button class="btn ghost grow" onclick="S.formation=(S.formation+2)%3;render()">‹ Forrige</button><button class="btn primary grow" onclick="S.formation=(S.formation+1)%3;render()">Næste ›</button></div>
+ <div class="card"><div class="small">Du er <b style="color:var(--gold2);font-weight:500">F</b>. Gå fra midten til højre forkant på tælling 25–28 (4 tællinger, diagonalt).</div></div>
+ ${isStaff()?`<button class="btn ghost block" onclick="toast('Demo: træk danserne på plads for at redigere')">Redigér formation</button>`:""}</div>`}
+function foldersScreen(){return `${topbar("Holdets mapper",{right:`<button class="btn ghost sm" onclick="uploadSheet()">+ Upload</button>`})}<div class="content fade"><p class="small muted" style="margin:0">Kun The AXIS (dansere, forældre, trænere) kan se mapperne. Line og Maja styrer adgangen.</p>
+ <div class="stack">${FOLDERS.map((f,i)=>`<div class="card tap" onclick="go('folder',{i:${i}})"><div class="grid3">${[0,1,2].map(k=>`<div class="art"><canvas data-seed="${70+i*3+k}" data-fig="1" data-rib="2"></canvas></div>`).join("")}</div><div class="row between"><div>${f.t}</div><span class="tiny">${f.n} billeder</span></div></div>`).join("")}</div></div>`}
+function folderScreen(){const f=FOLDERS[S.params.i||0];return `${topbar(f.t,{right:`<button class="btn ghost sm" onclick="uploadSheet()">+ Upload</button>`})}<div class="content fade"><div class="row between small muted"><span>${f.n} billeder · 3 videoer</span><span>Uploadet af 6 forældre</span></div><div class="grid3">${Array.from({length:15},(_,k)=>`<div class="art tap" onclick="toast('Demo: åbner billede i fuld skærm')"><canvas data-seed="${100+k}" data-fig="${k%4===3?0:1}" data-rib="2"></canvas></div>`).join("")}</div><p class="tiny">Billeder af dansere under 18 vises kun for holdets egne medlemmer og kan ikke downloades uden samtykke.</p></div>`}
+function uploadSheet(){sheet(`<h2>Upload til mappe</h2><div class="field"><label>Mappe</label><select>${FOLDERS.map(f=>`<option>${f.t}</option>`).join("")}<option>+ Ny mappe…</option></select></div><div class="field"><label>Synlig for</label><div class="chips"><span class="chip gold">The AXIS</span><span class="chip">Forældre</span><span class="chip">Kun trænere</span></div></div><div class="card" style="align-items:center;border-style:dashed;padding:28px"><div class="muted small">Vælg billeder eller video fra telefonen</div></div><button class="btn primary block" onclick="closeSheet();toast('12 billeder uploadet til holdets mappe')">Upload 12 filer</button>`)}
+
+/* --- social --- */
+function postCard(p){const liked=S.liked[p.id];return `<div class="post"><div class="meta"><div class="avatar">${p.ini}</div><div class="grow"><div class="row"><span>${p.who}</span>${p.official?`<span class="chip gold">Officielt</span>`:""}</div><div class="tiny">${p.team} · ${p.time}</div></div></div><div class="small">${p.text}</div>${p.img?`<div class="art" style="aspect-ratio:16/9"><canvas data-seed="${p.id*7+1}" data-fig="${p.id===2?1:0}"></canvas></div>`:""}<div class="acts"><button onclick="S.liked[${p.id}]=!S.liked[${p.id}];render()" style="color:${liked?"var(--gold2)":"inherit"}">${liked?"★":"☆"} ${p.likes+(liked?1:0)}</button><button onclick="go('thread',{i:0})">💬 ${p.comments}</button></div></div>`}
+function socialScreen(){const t=S.params.tab||"feed";
+ return `${topbar("Social",{noBack:true,right:`<button class="btn ghost sm" onclick="newPostSheet()">+ Opslag</button>`})}<div class="content fade"><div class="tabs"><button class="${t==="feed"?"on":""}" onclick="S.params={tab:'feed'};render()">Feed</button><button class="${t==="threads"?"on":""}" onclick="S.params={tab:'threads'};render()">Tråde</button><button class="${t==="msgs"?"on":""}" onclick="go('messages')">Beskeder <span class="chip gold" style="padding:1px 7px">${MESSAGES.filter(m=>!m.done&&!S.accepted[m.id]).length}</span></button></div>
+ ${t==="feed"?`<div class="chips"><span class="chip gold">Alle</span><span class="chip">The AXIS</span><span class="chip">Officielt</span><span class="chip">Stjerneshoppen</span></div><div>${POSTS.map(postCard).join("")}</div>`:`<div class="card list">${THREADS.map((th,i)=>`<div class="item tap" onclick="go('thread',{i:${i}})"><div class="avatar">${th[0][0]}</div><div class="grow"><div>${th[0]}</div><div class="tiny">${th[1]}</div></div><span class="gold">›</span></div>`).join("")}</div><button class="btn ghost block" onclick="newPostSheet(true)">Start ny tråd</button>`}</div>`}
+function threadScreen(){const th=THREADS[S.params.i||0];const msgs=[["Alma","I går 17.05","Er der nogen der kører fra Viborg til Randers d. 8. nov? Vi er to der mangler kørelejlighed."],["Steffen","I går 17.40","Vi kører fra Viborg kl. 7 – der er plads til to mere i bilen."],["Maja","I går 18.02","Husk at alle skal være der 7.45, så kør senest 6.50 fra Viborg 🙂"],["Ida","I går 19.15","Vi tager også gerne nogen med – kører fra Bjerringbro."]];
+ return `${topbar("Tråd")}<div class="content fade"><div><h2 style="font-size:22px">${th[0]}</h2><div class="tiny">The AXIS · ${th[1]}</div></div><div class="stack">${msgs.map(m=>`<div class="post" style="border:0;padding:4px 0"><div class="meta"><div class="avatar">${m[0][0]}</div><div class="grow"><div>${m[0]}</div><div class="tiny">${m[1]}</div></div></div><div class="small">${m[2]}</div></div>`).join("")}</div><div class="row"><input placeholder="Skriv et svar…" id="reply"><button class="btn primary sm" onclick="toast('Svar sendt til tråden')">Send</button></div></div>`}
+function newPostSheet(thread){sheet(`<h2>${thread?"Ny tråd":"Nyt opslag"}</h2><div class="field"><label>Til</label><div class="chips"><span class="chip gold">The AXIS</span>${isStaff()?`<span class="chip">Alle hold</span><span class="chip">Forældre</span>`:""}</div></div>${thread?`<div class="field"><label>Emne</label><input placeholder="Hvad handler tråden om?"></div>`:""}<div class="field"><label>Tekst</label><textarea placeholder="${thread?"Skriv det første indlæg…":"Del noget med holdet…"}"></textarea></div><div class="row"><button class="btn ghost sm">📷 Billede</button><button class="btn ghost sm">🎬 Video</button>${S.role==="admin"?`<button class="btn ghost sm">★ Officielt</button>`:""}</div><button class="btn primary block" onclick="closeSheet();toast('${thread?"Tråd oprettet":"Opslag delt med The AXIS"}')">${thread?"Opret tråd":"Del"}</button>`)}
+function messagesScreen(){return `${topbar("Beskeder")}<div class="content fade"><p class="small muted" style="margin:0">Officielle beskeder fra Line og trænerne. Nogle kræver, at du bekræfter.</p><div class="stack">${MESSAGES.map(m=>{const done=m.done||S.accepted[m.id];return `<div class="card ${done?"":"tap"}" style="${done?"":"border-color:var(--gold3)"}"><div class="row between"><div class="tiny">${m.from} · ${m.date}</div>${done?`<span class="chip ok">${m.needs==="accept"?"Bekræftet":"Læst"}</span>`:`<span class="chip warn">${m.needs==="accept"?"Kræver svar":"Ulæst"}</span>`}</div><div>${m.title}</div><div class="small muted">${m.text}</div>${done?"":`<button class="btn primary sm" style="align-self:flex-start" onclick="S.accepted['${m.id}']=true;render();toast('${m.needs==="accept"?"Samtykke bekræftet – Line har fået besked":"Markeret som læst"}')">${m.needs==="accept"?"Jeg bekræfter":"Markér som læst"}</button>`}</div>`}).join("")}</div></div>`}
+function composeMsgScreen(){return `${topbar("Officiel besked")}<div class="content fade"><div class="field"><label>Modtagere</label><div class="chips"><span class="chip gold">Alle hold</span><span class="chip">The AXIS</span><span class="chip">Apexion</span><span class="chip">Kun forældre</span><span class="chip">Kun dansere 14+</span></div></div><div class="field"><label>Titel</label><input placeholder="Fx Samtykke: foto/video til DM"></div><div class="field"><label>Besked</label><textarea></textarea></div><div class="toggle"><div><div>Kræver bekræftelse</div><div class="tiny">Du kan se, hvem der har svaret</div></div><div class="sw on"><i></i></div></div><div class="toggle"><div><div>Send også som push</div></div><div class="sw on"><i></i></div></div><div class="toggle"><div><div>Vedhæft tilmelding/betaling</div><div class="tiny">Fx julebal 95 kr.</div></div><div class="sw"><i></i></div></div><button class="btn primary block" onclick="back();toast('Besked sendt til 142 medlemmer')">Send til 142 medlemmer</button></div>`}
+
+/* --- competitions & events --- */
+function compScreen(){return `${topbar("Events",{noBack:true})}<div class="content fade"><div class="tabs"><button class="on">Kommende</button><button onclick="go('results')">Resultater</button><button onclick="go('shop')">Stjerneshoppen</button></div>
+ <div class="stack">${COMPS.map((c,i)=>`<div class="card tap" onclick="go('compDetail',{id:'${c.id}'})"><div class="hero" style="min-height:110px;margin:-14px -16px 4px;border:0;border-radius:16px 16px 0 0"><canvas data-seed="${80+i}" data-fig="${i%2}"></canvas><div><div class="eyebrow">${c.date}</div><h2 style="font-size:24px">${c.title}</h2></div></div><div class="row between"><div class="tiny">${c.place} · ${c.teams.join(", ")}</div><span class="chip ${c.status==="Tilmeldt"?"ok":c.status.includes("Åben")||c.status.includes("Billet")?"gold":""}">${c.status}</span></div></div>`).join("")}</div></div>`}
+function compDetailScreen(){const c=COMPS.find(x=>x.id===S.params.id)||COMPS[0];const t=S.params.t||"dag";
+ return `${topbar(c.title,{right:isStaff()?`<button class="btn ghost sm" onclick="toast('Demo: redigér event, dagsplan og pakkeliste')">Redigér</button>`:""})}<div class="content fade"><div class="chips"><span class="chip gold">${c.date}</span><span class="chip">${c.place}</span><span class="chip">Mødetid ${c.meet}</span>${c.no?`<span class="chip">Startnr. ${c.no}</span>`:""}</div>
+ <div class="tabs"><button class="${t==="dag"?"on":""}" onclick="S.params.t='dag';render()">Dagsplan</button><button class="${t==="pak"?"on":""}" onclick="S.params.t='pak';render()">Pakkeliste</button><button class="${t==="info"?"on":""}" onclick="S.params.t='info';render()">Info</button></div>
+ ${t==="dag"?`<div class="card list">${c.plan.map((p,i)=>`<div class="item"><div class="time">${p[0]}</div><div class="grow ${i===4&&c.id==="c1"?"gold":""}">${p[1]}</div></div>`).join("")}</div><p class="tiny">Ændringer på dagen sendes som push til alle, der er tilmeldt.</p>`:""}
+ ${t==="pak"?`<div class="card list">${c.pack.length?c.pack.map((p,i)=>`<div class="item" onclick="this.querySelector('.check').classList.toggle('on');this.querySelector('.check').textContent=this.querySelector('.check').classList.contains('on')?'✓':''"><div class="check ${i<2?"on":""}">${i<2?"✓":""}</div><div class="grow small">${p}</div></div>`).join(""):`<div class="item tiny">Pakkeliste kommer senere</div>`}</div>`:""}
+ ${t==="info"?`<div class="card stack"><div class="small"><b style="font-weight:500">Hår:</b> stram knold, midterskilning, guldspænde</div><div class="small"><b style="font-weight:500">Makeup:</b> bronze palette, røde læber (Mini: kun læber)</div><div class="small"><b style="font-weight:500">Kostume:</b> sort/guld DM-dragt, udleveres tirsdag</div><div class="small"><b style="font-weight:500">Forældre:</b> tribunen åbner 09.30, billetter 60 kr. i døren</div></div>`:""}
+ <div class="card"><div class="row between"><div><div>Tilmelding</div><div class="tiny">Frist ${c.deadline}${c.id==="c3"?" · 95 kr. pr. billet":c.id==="c2"?" · 255 kr.":c.id==="c1"?" · DM-gebyr 350 kr.":""}</div></div>${c.status==="Tilmeldt"?`<span class="chip ok">Freja er tilmeldt</span>`:`<button class="btn primary sm" onclick="toast('Demo: tilmelding + betaling via MobilePay/Stripe')">Tilmeld${c.id==="c3"?" & køb billet":""}</button>`}</div></div>
+ ${isStaff()?`<div class="card"><div class="row between"><div>Tilmeldte</div><span class="small muted">${c.id==="c1"?"34 af 37":"12"}</span></div>${c.id==="c1"?`<div class="tiny">Mangler: Ida S., Mille K., Nora H. – send påmindelse</div><button class="btn ghost sm" style="align-self:flex-start" onclick="toast('Påmindelse sendt til 3 forældre')">Send påmindelse</button>`:""}</div>`:""}</div>`}
+function resultsScreen(){return `${topbar("Trofæhylde")}<div class="content fade"><div class="hero"><canvas data-seed="5" data-rib="5"></canvas><div><div class="eyebrow">Sæson 25/26</div><h2>4 podieplaceringer</h2></div></div><div class="card list">${RESULTS.map(r=>`<div class="item"><div class="time">${r[0]}</div><div class="grow"><div>${r[1]}</div><div class="tiny">${r[2]}</div></div><span class="gold small">${r[3]}</span></div>`).join("")}</div>${isStaff()?`<button class="btn ghost block" onclick="toast('Demo: registrér resultat')">+ Tilføj resultat</button>`:""}</div>`}
+function shopScreen(){return `${topbar("Stjerneshoppen")}<div class="content fade"><p class="small muted" style="margin:0">Bestil her – det udleveres ved næste træning. Størrelser hentes fra danserens profil.</p><div class="stack">${SHOP.map((s,i)=>`<div class="card row"><div class="art" style="width:56px;height:56px;flex:none"><canvas data-seed="${120+i}" data-fig="0" data-rib="1"></canvas></div><div class="grow"><div>${s[0]}</div><div class="tiny">${s[2]}</div></div><div style="text-align:right"><div class="small">${s[1]}</div>${s[2]==="—"?`<button class="small gold" onclick="toast('Lagt i kurv – str. S fra profilen')">Bestil</button>`:""}</div></div>`).join("")}</div></div>`}
+function starsScreen(){return `${topbar("Stjernevæg")}<div class="content fade"><div class="hero"><canvas data-seed="9" data-rib="6"></canvas><div><div class="eyebrow">Freja · The AXIS</div><h2>3 milepæle nået</h2></div></div><div class="card list">${MILESTONES.map(m=>`<div class="item"><div class="check ${m[2]?"on":""}" style="border-radius:50%">${m[2]?"★":""}</div><div class="grow"><div>${m[0]}</div><div class="tiny">${m[1]}</div></div></div>`).join("")}</div><div class="sec"><h2>Fødselsdage</h2><div class="card list">${BIRTHDAYS.map(b=>`<div class="item"><div class="avatar">${b[0][0]}</div><div class="grow"><div>${b[0]} fylder ${b[2]}</div><div class="tiny">${b[1]}</div></div>🎂</div>`).join("")}</div></div><div class="card"><div class="eyebrow">Ugens danser</div><div>Alma N. – for at hjælpe de nye på Division med formationerne</div></div></div>`}
+
+/* --- profile --- */
+function profileScreen(){const u=me();const d=USERS.dancer;const showD=S.role==="dancer"||S.role==="parent";
+ return `${topbar("Profil",{right:`<button class="small muted" onclick="logout()">Log ud</button>`})}<div class="content fade"><div class="row"><div class="avatar lg">${u.initials}</div><div><h2 style="font-size:26px">${u.name}</h2><div class="small muted">${u.role} · ${u.sub}</div></div></div>
+ ${showD?`<div class="sec"><h2>${S.role==="parent"?"Freja":"Danser-kort"}</h2><div class="kv"><div class="card"><div class="tiny">Niveau</div><div>${d.level}</div></div><div class="card"><div class="tiny">Medlem siden</div><div>${d.since}</div></div><div class="card"><div class="tiny">Skostørrelse</div><div>${d.shoe}</div></div><div class="card"><div class="tiny">Kostume-str.</div><div>${d.size}</div></div></div></div>
+ <div class="sec"><h2>Hold</h2><div class="chips">${d.teams.map(t=>`<span class="chip gold">${t}</span>`).join("")}</div></div>
+ <div class="sec"><h2>Kun for trænere</h2><div class="card list"><div class="item"><div class="grow small">Kontaktperson</div><div class="small muted">Steffen · 28 12 67 70</div></div><div class="item"><div class="grow small">Allergier / hensyn</div><div class="small muted">Nødder</div></div><div class="item"><div class="grow small">Fotosamtykke</div><span class="chip ok">Givet</span></div></div></div>`:""}
+ ${S.role==="trainer"?`<div class="sec"><h2>Mine hold</h2><div class="chips">${u.teams.map(t=>`<span class="chip gold">${t}</span>`).join("")}</div></div>`:""}
+ <div class="sec"><h2>Notifikationer</h2><div class="card"><div class="toggle"><div>Påmindelse 2 timer før træning</div><div class="sw on"><i></i></div></div><div class="toggle"><div>Aflysninger & ændringer</div><div class="sw on"><i></i></div></div><div class="toggle" style="border:0"><div>Nye opslag fra holdet</div><div class="sw"><i></i></div></div></div></div>
+ <div class="sec"><h2>Skift rolle (demo)</h2><div class="chips">${Object.entries(USERS).map(([k,v])=>`<button class="chip ${k===S.role?"gold":""}" onclick="login('${k}')">${v.role}</button>`).join("")}</div></div></div>`}
+
+/* --- admin --- */
+function adminScreen(){return `${topbar("Admin",{noBack:true})}<div class="content fade"><div class="card list">
+ <div class="item tap" onclick="go('season')"><div class="grow"><div>Sæsonplanlægger</div><div class="tiny">To sale, hele ugen, publicér til hold</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('members')"><div class="grow"><div>Medlemmer & kontingent</div><div class="tiny">142 aktive · 3 forfaldne</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('access')"><div class="grow"><div>Holdadgang</div><div class="tiny">Hvem ser hvilke hold og mapper</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('staff')"><div class="grow"><div>Trænerplan & vikarer</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('audition')"><div class="grow"><div>Auditions & venteliste</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('bookingRequests')"><div class="grow"><div>Salbookinger til godkendelse</div></div><span class="chip warn">2</span></div>
+ <div class="item tap" onclick="go('absences')"><div class="grow"><div>Afbud i dag</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('composeMsg')"><div class="grow"><div>Officiel besked</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="go('shop')"><div class="grow"><div>Stjerneshoppen – ordrer</div><div class="tiny">7 til udlevering</div></div><span class="gold">›</span></div>
+ <div class="item tap" onclick="toast('Demo: eksport af fremmøde, betalinger og medlemsliste')"><div class="grow"><div>Rapporter & eksport</div></div><span class="gold">›</span></div>
+ </div></div>`}
+function seasonScreen(){const cols=[0,1,2,3];return `${topbar("Sæson 26/27",{right:`<button class="btn primary sm" onclick="toast('Publiceret – holdenes kalendere og salbookinger er opdateret')">Publicér</button>`})}<div class="content fade"><div class="seg"><button class="on">Store Sal</button><button onclick="toast('Demo: skift til Lille Sal')">Lille Sal</button></div>
+ <div class="week">${cols.map(d=>`<div class="col"><h4>${DAYS[d]}</h4>${SCHEDULE.filter(t=>t.day===d&&t.room==="S").map(t=>`<div class="blk s" onclick="go('editTraining',{id:${t.id}})"><b>${esc(t.name)}</b>${t.start}–${t.end}</div>`).join("")}</div>`).join("")}</div>
+ <p class="tiny">Træk en blok for at flytte den. Overlap i samme sal afvises automatisk. Når du publicerer, opdateres holdenes kalendere, salbookingen og forældrenes skema.</p>
+ <button class="btn ghost block" onclick="go('editTraining',{})">+ Tilføj træning</button></div>`}
+function membersScreen(){const team=S.params.team;const list=team?MEMBERS.filter(m=>m[1]===team):MEMBERS;
+ return `${topbar(team?team+" – dansere":"Medlemmer",{right:isStaff()?`<button class="btn ghost sm" onclick="toast('Demo: inviter danser/forælder via e-mail eller kode')">+ Inviter</button>`:""})}<div class="content fade">${!team?`<input placeholder="Søg navn, hold, forælder…">`:""}<div class="card list">${list.map(m=>`<div class="item tap" onclick="go('profile')"><div class="avatar">${m[0][0]}</div><div class="grow"><div>${m[0]}</div><div class="tiny">${m[1]} · ${m[2]}</div></div>${S.role==="admin"?(m[3]?`<span class="chip ok">Betalt</span>`:`<span class="chip bad">Forfalden</span>`):""}</div>`).join("")}</div>${S.role==="admin"&&!team?`<div class="card"><div class="row between"><div>Kontingent efterår 26</div><span class="small muted">139 / 142 betalt</span></div><div class="prog"><i style="width:98%"></i></div><button class="btn ghost sm" style="align-self:flex-start" onclick="toast('Rykker sendt til 3 forældre')">Send rykker til 3</button></div>`:""}</div>`}
+function accessScreen(){const req=[["Sofia M. (danser)","The AXIS","Mor: Karin M."],["Jonas P. (forælder)","Apexion","Til Mille K."],["Emma L. (danser)","Division","Far: Lars L."]];
+ return `${topbar("Holdadgang")}<div class="content fade"><p class="small muted" style="margin:0">Dansere og forældre ser kun de hold, du giver dem adgang til – kalender, mapper, videoer og tråde følger med.</p><div class="sec"><div class="eyebrow">Afventer godkendelse</div><div class="stack">${req.map(r=>`<div class="card"><div class="row between"><div><div>${r[0]}</div><div class="tiny">Ønsker adgang til ${r[1]} · ${r[2]}</div></div></div><div class="row"><button class="btn primary sm grow" onclick="this.closest('.card').innerHTML='<span class=\\'chip ok\\'>Godkendt – ${r[1]}</span>'">Godkend</button><button class="btn ghost sm" onclick="this.closest('.card').remove()">Afvis</button></div></div>`).join("")}</div></div>
+ <div class="sec"><div class="eyebrow">The AXIS – adgang</div><div class="card list">${["Freja T. + Steffen (forælder)","Alma N. + Karin","Ida S. + Peter","Mille K. (fra Apexion – teknik)"].map(n=>`<div class="item"><div class="grow small">${n}</div><div class="sw on" onclick="this.classList.toggle('on')"><i></i></div></div>`).join("")}</div></div></div>`}
+function staffScreen(){return `${topbar("Trænerplan")}<div class="content fade"><div class="card list">${[["Line Lund Olesen","Showdance, teknik, disco","21 t/uge"],["Maja Kristensen","Hip hop, styrke, spring","9 t/uge"],["Sofie Dahl","Mini, ballet, contemporary","11 t/uge"]].map(s=>`<div class="item"><div class="avatar">${s[0][0]}</div><div class="grow"><div>${s[0]}</div><div class="tiny">${s[1]}</div></div><span class="small muted">${s[2]}</span></div>`).join("")}</div><div class="card" style="border-color:var(--gold3)"><div class="row between"><div><div>Vikar mangler</div><div class="tiny">Torsdag 23. okt · Ballet Mini 17.25 · Sofie er syg</div></div><span class="chip warn">Åben</span></div><div class="row"><button class="btn primary sm grow" onclick="toast('Forespørgsel sendt til Maja og Line')">Spørg trænere</button><button class="btn ghost sm" onclick="toast('Demo: aflys og giv holdet besked')">Aflys</button></div></div></div>`}
+function auditionScreen(){return `${topbar("Auditions")}<div class="content fade"><div class="hero"><canvas data-seed="14"></canvas><div><div class="eyebrow">2. november · Store Sal</div><h2>Audition – elitehold</h2><div class="small muted">The AXIS, Apexion, Mini Angels · 14 tilmeldte</div></div></div><div class="card list">${WAITLIST.map(w=>`<div class="item"><div class="avatar">${w[0][0]}</div><div class="grow"><div>${w[0]}</div><div class="tiny">${w[1]} · ${w[2]}</div></div><button class="btn ghost sm" onclick="toast('Demo: resultat sendes privat til danser og forælder')">Resultat</button></div>`).join("")}</div><p class="tiny">Resultater sendes privat til hver danser og forælder – aldrig i feedet.</p></div>`}
+function bookingRequestsScreen(){return `${topbar("Bookinger")}<div class="content fade"><div class="stack">${BOOKINGS.filter(b=>b.by!=="Line").map(b=>`<div class="card"><div class="row between"><div><div>${esc(b.name)}</div><div class="tiny">${DAYS[b.day]} ${b.start}–${b.end} · ${ROOMS[b.room]} · ${b.by}</div></div></div><div class="row"><button class="btn primary sm grow" onclick="this.closest('.card').innerHTML='<span class=\\'chip ok\\'>Godkendt</span>'">Godkend</button><button class="btn ghost sm" onclick="BOOKINGS=BOOKINGS.filter(x=>x.id!=='${b.id}');render();toast('Afvist – danseren har fået besked')">Afvis</button></div></div>`).join("")||`<div class="card tiny">Ingen bookinger afventer</div>`}</div></div>`}
+function absencesScreen(){const base=[["Ida S.","The AXIS 16.45","Syg"],["Clara B.","Empire 17.40","Skole"],["Liv J.","Mini Angels 15.40","Ferie"],["Nora H.","Satellite Stars 16.35","Skade"]];const extra=Object.keys(S.absent).map(id=>{const t=SCHEDULE.find(x=>x.id==id);return ["Freja T.",t?`${t.name} ${t.start}`:"",""]});
+ return `${topbar("Afbud i dag")}<div class="content fade"><div class="card list">${[...extra,...base].map(a=>`<div class="item"><div class="avatar">${a[0][0]}</div><div class="grow"><div>${a[0]}</div><div class="tiny">${a[1]}</div></div>${a[2]?`<span class="chip">${a[2]}</span>`:""}</div>`).join("")}</div></div>`}
+
+/* ---------- render ---------- */
+const SCREENS={home:homeScreen,cal:calScreen,team:teamScreen,teams:teamsScreen,social:socialScreen,comp:compScreen,admin:adminScreen,profile:profileScreen,schedule:scheduleScreen,editTraining:editTrainingScreen,attendance:attendanceScreen,choreo:choreoScreen,player:playerScreen,formation:formationScreen,folders:foldersScreen,folder:folderScreen,thread:threadScreen,messages:messagesScreen,composeMsg:composeMsgScreen,compDetail:compDetailScreen,results:resultsScreen,shop:shopScreen,stars:starsScreen,season:seasonScreen,members:membersScreen,access:accessScreen,staff:staffScreen,audition:auditionScreen,bookingRequests:bookingRequestsScreen,absences:absencesScreen};
+function render(){closeSheet();let html;
+ if(!S.role||S.screen==="login"){html=`<div class="screen">${loginScreen()}</div>`}
+ else{const name=S.screen==="tab"?S.tab:S.screen;const f=SCREENS[name]||homeScreen;html=`<div class="screen">${f()}</div>${nav()}<div class="demo-badge">Demo · ${me().role}</div>`}
+ phone.innerHTML=html;paint();const sc=phone.querySelector(".screen");if(sc)sc.scrollTop=0}
+render();
+</script>
+
+</body></html>

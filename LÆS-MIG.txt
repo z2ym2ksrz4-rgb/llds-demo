@@ -1,0 +1,4 @@
+LL Dance Studio – app-demo
+
+Åbn index.html i en browser (Safari/Chrome). Virker uden login og uden internet (kun skrifttyperne hentes online).
+Demo-data er fiktive.
